@@ -1,0 +1,50 @@
+import FreeCAD,FreeCADGui,Part
+import os.path
+ 
+# CHANGE THE LINE BELOW
+path_to_ui = os.path.join(os.path.dirname(__file__), "expressionStrReplForm.ui")
+
+def isValidElement(element):
+	options = dir(element)
+	if "setExpression" in options and "ExpressionEngine" in options and len(element.ExpressionEngine) > 0:
+		return True
+	else:
+		return False
+ 
+class ConstStrReplForm:
+	def __init__(self, elements = []):
+		# this will create a Qt widget from our ui file
+		self.form = FreeCADGui.PySideUic.loadUi(path_to_ui)
+		self._elements = elements
+	
+	def accept(self):
+		string_to_find = self.form.replace_string_lineEdit.text()
+		string_to_insert = self.form.insert_string_lineEdit.text()
+
+		for element in self._elements:
+			new_expression = []
+			for expr in element.ExpressionEngine:
+				new_expression.append( (
+					expr[0], 
+					expr[1].replace(string_to_find, string_to_insert)
+				) )
+			for nexp in new_expression:
+				element.setExpression(*nexp)
+		
+		FreeCADGui.Control.closeDialog()
+
+selected_elements = Gui.Selection.getSelection()
+valid_elements = []
+for element in selected_elements:
+	if isValidElement(element):
+		valid_elements.append(element)
+	else:
+		print("Element " + str(element.Name) + " ignored")
+
+if len(valid_elements) > 0:
+	panel = ConstStrReplForm(valid_elements)
+	FreeCADGui.Control.showDialog(panel)
+
+
+
+	
