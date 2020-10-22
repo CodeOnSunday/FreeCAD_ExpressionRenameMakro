@@ -1,0 +1,1 @@
+This makro provides an option to change the expression string of constraints from multiple elements by once by making a string replace operation. Just select the elements and enter a search and a replace string. 
